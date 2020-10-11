@@ -1,0 +1,99 @@
+---
+title: "Session_2"
+output: html_document
+output:
+  rmarkdown::html_document:
+    theme: lumen
+---
+
+### Create a folder somewhere and name it R_codes
+### Create a project name it mentoring_2, and select the R_codes folder to base folder
+
+### Print out the workng directory
+```{r }
+getwd()
+```
+
+
+### Download the AMZN data from ceulearning
+### Save it into the working directory
+### Read the data with fullpath and with relativ path
+```{r }
+read.csv("C:/Users/diama/Documents/CEU-Business-Analytics-2020/Coding_1/R_Codes/mentoring_2/amzn.csv")
+read.csv("amzn.csv")
+
+
+### How can you comment multiple lines?
+```{r } ctrl + shift + c
+# print your answer 
+print('ctrl+shift+c')
+```
+
+### How can you add the pipe symbol?
+```{r }
+# print your answer 
+print('Ctrl+shift+m')
+```
+
+### How can you insert code block? Why is it good?
+```{r }
+# print your answer 
+print('Ctrl + Alt + I')
+```
+
+
+### install a package called rtsdata
+
+
+
+```{r }
+install.packages("rtsdata")
+library(rtsdata)
+ticker <- 'TSLA'
+start_date <- '2020-01-01'
+end_date <- Sys.Date()
+df <- data.frame(ds.getSymbol.yahoo(ticker, from = start_date, to = end_date))
+
+```
+
+### Rename the header, to open, high,low, close, volume, adjusted,
+
+```{r }
+names(df) <- c("open", "high", "low", "close", "volume", "adjusted")
+names(df)[1:6] ...
+```
+
+
+### Create a column which contains the dates value
+```{r }
+df$date_value <- row.names(df)
+df[["new_column"]] <-
+```
+
+
+### Delete the adjusted column
+```{r }
+df$adjusted = NULL
+```
+
+### Create a column which indicate that is the close price is above the mean of close price use ifelse
+```{r }
+
+df$bigger <- ifelse(df$close >= mean(df$close), "yes", "no")
+```
+
+### Create a column with the year value it should be string
+```{r }
+df$year <- substr(df$date_value, 1, 4)
+```
+
+### Save the clean data into xlsx, csv, rds format, save table it with '#'separator as .txt 
+```{r }
+save(df, file = "CodingPractice_df.csv")
+write.csv(df, 'tsla.csv', row.names = FALSE)
+write.table()
+saveRDS()
+```
+
+### Change the theme of rmd with preaty doc
+
