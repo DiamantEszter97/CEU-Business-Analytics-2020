@@ -1,4 +1,3 @@
-
 -- INNER
 SELECT * 
 FROM products 
@@ -24,13 +23,36 @@ INNER JOIN productlines t2
 ON t1.productline = t2.productline;
 
 -- Exercise1: Join all fields of order and orderdetails
+SELECT * FROM orders inner join orderdetails on orders.orderNumber = orderdetails.orderNumber
 
 -- Exercise2: Join all fields of order and orderdetails. Display only orderNumber, status and sum of totalsales (quantityOrdered * priceEach) for each orderNumber.
-
+USE classicmodels;
+SELECT 
+	t1.orderNumber,
+    t1.status,
+    sum(quantityOrdered * priceEach) totalsales
+    FROM orders t1
+    inner join orderdetails t2
+    on t1.orderNumber = t2.orderNumber
+    group by orderNumber;
 -- Exercise3: We want to how the employees are performing. Join orders, customers and employees and return orderDate,lastName, firstName
 
+-- SELECT t1.customerNumber, ROSSZ
+-- 	from orders t1,
+--    inner join customers t2,
+--	on t1.customerNumber = t2.customerNumber,
+--   inner join employee t3
+--    on t3.employeeNumber = t2.salesRepEmployeeNumber;
+    
+SELECT orderDate, lastName, firstName
+	from orders t1
+    inner join customers t2
+    using (customerNumber)
+    inner join employees t3
+    on t2.salesRepEmployeeNumber = t3.employeeNumber;
+    
 
-
+    
 -- SELF
 
 -- Employee table represents a hierarchy, which can be flattened with a self join. The next query displays the Manager, Direct report pairs:
@@ -39,13 +61,13 @@ SELECT
     CONCAT(e.lastName, ', ', e.firstName) AS 'Direct report'
 FROM
     employees e
-INNER JOIN employees m ON 
+LEFT JOIN employees m ON 
     m.employeeNumber = e.reportsTo
 ORDER BY 
     Manager;
     
 -- Exercise4: Why President is not in the list?
-
+-- Because the presidentdoes not report to anyone theoritically and he was left out in the INNER JOIN. In order to iclude, the INNER JOIN must be changed to LEFT JOIN
 
 -- LEFT
 

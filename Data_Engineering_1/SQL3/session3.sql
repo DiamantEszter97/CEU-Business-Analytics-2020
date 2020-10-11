@@ -19,7 +19,7 @@ ORDER BY cost_category;
 
 
 -- Exercise1: Do the same with speed. If speed is NULL or speed < 100 create a "LOW SPEED" category, otherwise, mark as "HIGH SPEED". Use IF instead of CASE!
-
+select id, airline, speed if((speed <100 or speed is null), 'low speed', 'high speed' as speed_categoryfrom birdstrikes order by speed_category;
 -- COUNT
 
 -- COUNT(*)

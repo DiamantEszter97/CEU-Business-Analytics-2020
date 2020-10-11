@@ -1,0 +1,5 @@
+# server id.
+server-id=1
+
+# secure file priv.
+# secure-file-priv="c:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
