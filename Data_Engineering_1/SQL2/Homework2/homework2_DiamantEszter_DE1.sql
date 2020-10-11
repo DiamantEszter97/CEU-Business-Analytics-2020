@@ -20,4 +20,4 @@ select state from birdstrikes where state is not null and state != '' and bird_s
 
 
 -- Exercise5:  How many days elapsed between the current date and the flights happening in week 52, for incidents from Colorado? (Hint: use NOW, DATEDIFF, WEEKOFYEAR)
-select flight_date, weekofyear(flight_date) as weeks, datediff(day, flight_date, now()) as diff from birdstrikes where weeks = 52;
+select flight_date, weekofyear(flight_date) as weeks, current_date- flight_date as diff from birdstrikes where weekofyear(flight_date) = 52 and state = 'colorado' order by weeks desc;
