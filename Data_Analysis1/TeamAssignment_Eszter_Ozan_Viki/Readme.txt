@@ -19,4 +19,6 @@ The 38 distinct variables we have defined can be thought of as divided into 4 ca
 
 Due to the Pandemic, each observation has been collected via using the web and it has been recorded to a shared Microsoft Office document by the members of our group. Each member contributes by collecting data on 14 restaurants. The values have been aggregated at the end and data correction and visual improvements have been implemented where necessary.
 
+Github Repository: https://github.com/DiamantEszter97/CEU-Business-Analytics-2020/tree/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki
+
 
