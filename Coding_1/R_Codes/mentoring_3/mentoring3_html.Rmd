@@ -1,0 +1,74 @@
+---
+title: Mentoring3
+author: Eszter Diamant
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+# heading 1
+## Heading 2
+```{r, include=F, message=F, echo=F, eval=F}
+2 + 3
+
+```
+
+
+```{r}
+mtcars::
+  library(ggplot2)
+ggplot(mtcars, aes(x = mpg, y = hp)) + geom_point() + 
+  theme_replace() + labs(x = 'milespergallon', 
+                        y = 'horsepower', title = 'title', subtitle = 'subtitle')
+```
+
+# Which airplane flough the most time?
+```{r}
+library(nycflights13)
+df <- flights  
+ df %>% 
+   group_by(tailnum) %>% 
+   summarise('number_of_flights' = n()) %>% 
+   arrange(-number_of_flights) %>% 
+   filter(!is.na(tailnum)) %>% 
+   head(1)
+```
+
+
+```{r}
+library(tidyverse)
+df %>%
+  ggplot(aes(x=dep_delay)) +
+  geom_bar()+
+  theme_bw()+
+  labs(x='Departure delay', y='Number of observation', title = 'Departure delay histogram') 
+
+```
+
+
+
+
+```{r}
+library(ggplot2)
+ggplot(df, aes(x =dest))+
+  geom_bar()+
+  theme_bw()+
+  labs(x='Destination', y='number of flights', title = 'Number of flights to destination')
+
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+
+```{r}
+
+```
+
