@@ -6,6 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
+library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -15,8 +16,49 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r, include= FALSE}
+# Converting the data into csv format makes it possible to directly access it from Github
+# I will make a pull request later on but I believe the url below need to be updated to Eszter's repo
+da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
+da1_data <- read_csv(da1_url)
+
+# Seperating the distance and the unit into two columns
+da1_data <- separate(da1_data, distance, " ", into = c("distance", "distance_unit"))
+# Transforming the distances to km
+da1_data$distance <- ifelse(da1_data$distance_unit == "m", as.numeric(da1_data$distance)/1000, da1_data$distance)
+# Renaming the distance units
+da1_data$distance_unit <- str_replace(da1_data$distance_unit, "m", "km")
+da1_data$distance_unit <- str_replace(da1_data$distance_unit, "kkm", "km")
+# Turning distance to a numeric variable
+da1_data$distance <- as.numeric(da1_data$distance)
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# Creating a graph of distance from CEU
+
+distance_graph <- ggplot( da1_data , aes( x = distance  ) ) +
+  geom_histogram( aes(y = ..density..) , binwidth = 0.5, fill = "navyblue") +
+  labs(x='Distnace from CEU',y='Density') + xlim(0, 8) + ylim(0, 0.5)
+
+distance_graph + geom_segment( aes(x = 4, y = 0, xend = 4, yend = 0.5), color = 'black', size=1) + 
+  annotate("rect",xmin=4, xmax = 8, ymin=0, ymax=0.5, fill='blue', alpha=0.1, na.rm = TRUE) + 
+  annotate("text", x = 6, y = 0.15, label = "Too far out", size=3)
+
+
+# Changing imported_wine into a factor 
+da1_data$imported_wine <- as.factor(da1_data$imported_wine)
+da1_data$imported_wine <- str_replace(da1_data$imported_wine, "0", "No")
+da1_data$imported_wine <- str_replace(da1_data$imported_wine, "no", "No")
+da1_data$imported_wine <- str_replace(da1_data$imported_wine, "yes", "Yes")
+
+# Creating a simple boxplot for mean pizza price and imported wine category
+wine_graph <- ggplot(da1_data, aes(y = margarita_price, x = imported_wine)) +
+  geom_boxplot(color = "blue", size = 0.5, width = 0.1, alpha = 0.5) +
+  labs(x='Imported Wine',y='Price')
+
+wine_graph + stat_boxplot(geom = "errorbar", width = 0.05,  size = 0.5) + 
+   stat_summary(fun=mean, geom="point", shape=2, size=2, color="red", fill="red")
+
 ```
 
 ## Including Plots
