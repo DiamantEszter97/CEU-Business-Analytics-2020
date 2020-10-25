@@ -22,8 +22,8 @@ library(ggpubr)
 
 ## Data Collection
 Due to the pandemic situation, the data collection was made exclusively online, thereby, the time spent on research reduced significantly. Due this reason, several values such as number of tables and waiters, the size of the restaurant measured by square meter were excluded in the end. The aim of those data was to examine the exclusivity of restaurant which was solved by collecting different rating on websites. On the other hand, some data on prices were less excessive in smaller restaurants that do not delivery and are also absent on the internet which might influence the outcome of the analysis negatively. 
-The main purpose of the analysis is to investigate the differences in cola and margarita prices on Budapest and countryside cities such as Debrecen, Nyíregyháza, Szeged, etc. In the following parts, the result of the full anylsis will be presented shortly and a hypothesis regarding the pizza prices
-
+The main purpose of the analysis is to investigate the differences in cola and margarita prices on Budapest and countryside cities such as Debrecen, Nyíregyháza, Szeged, etc. The cola prices were chosen for comparison because this soft drink was served in all examined restaurants. In the following parts, the result of the full analysis will be presented shortly and a hypothesis regarding the pizza prices.
+Daata and further information can be found on this github repository: [Github](https://github.com/DiamantEszter97/CEU-Business-Analytics-2020/tree/master/Assignments/DataAnalysis1_Coding1)
 ```{r, include=FALSE, warning=FALSE, message=FALSE}
 # importing the data
 
@@ -31,8 +31,6 @@ da1_url <- "https://raw.githubusercontent.com/DiamantEszter97/CEU-Business-Analy
 da1_data <- read_csv(da1_url)
 
 ```
-
-
 ```{r, include=FALSE}
 #### Cola calculations to be able to ha descriptive statistics for them
 ## as we had few observation of 500ml cola prices we decided to calculate estimated values from the other sized products as well, for this we assumed price/ml is the same for all cola products
@@ -61,10 +59,8 @@ da1_data$cola_price <- with(da1_data,ifelse(is.na(cola_price_500ml),cola_estimat
 # cola_estimated_price_500ml contains the price which were estimated from other sized cola products
 # cola_price contains all the original 500ml and estimated 500ml prices
 ```
-
 ## Descriptive statistics
 The below table contains a summary about the main statistic connected to the collected data about the margarita pizza and cola prices. The dataset includes a total of 69 observation from which the following was concluded: the distribution is asymmetric considering the fact it possesses a positive skewness which also suggest a right long tail. However, due to the problem of collecting unified prices on 500 ml Cola, the summary also shows a conclusion of all the cola also an estimated price of them. In other words, the estimated cola prices were assumed by calculating the price/500 ml.
-
 ```{r, echo = FALSE , results = "asis", warning = FALSE, message = FALSE }
 # descriptive summary table for margarita prices
 pizza_summary_1 <- da1_data %>% 
@@ -210,7 +206,7 @@ wine_graph + stat_boxplot(geom = "errorbar", width = 0.05,  size = 0.5) +
 
 ## Prices of Margarita pizza online vs offline and Budapest vs countryside
 The following charts present the comparison of the online and offline price and the distribution of prices in Budapest and countryside. As it is presented, the delivery prices range higher than on-delivery prices while the Budapest prices excess the countryside prices.
-```{r, echo=FALSE, out.width = '50%', warning=FALSE}
+```{r, echo=FALSE, out.width = '45%', warning=FALSE}
 
 da1_data %>% 
   ggplot(aes(x=margarita_price, fill=delivery))+
