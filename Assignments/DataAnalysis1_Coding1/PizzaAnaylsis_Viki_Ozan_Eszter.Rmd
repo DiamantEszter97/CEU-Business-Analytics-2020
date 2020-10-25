@@ -14,22 +14,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 I will write here a short summary (Eszter)
 
-
-
 ```{r, include=FALSE, warning=FALSE}
-data_dir <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
-pizza <- read.csv(data_dir)
-pizza_summary <- pizza %>% 
+da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
+da1_data <- read_csv(da1_url)
+
+pizza_summary <- da1_data %>% 
   summarise(mean = mean(margarita_price),
             median   = median(margarita_price),
             std      = sd(margarita_price),
             iq_range = IQR(margarita_price), 
             min      = min(margarita_price),
             max      = max(margarita_price),
-            skew     = skewness(margarita_price),
             numObs   = sum( !is.na( margarita_price ) ) )
+
 ```
-```{r, include=True}
+
+
+```{r, include=TRUE, echo=FALSE}
 pizza_summary
 ```
 
@@ -37,8 +38,8 @@ pizza_summary
 ```{r, include= FALSE}
 # Converting the data into csv format makes it possible to directly access it from Github
 # I will make a pull request later on but I believe the url below need to be updated to Eszter's repo
-da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
-da1_data <- read_csv(da1_url)
+# da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
+# da1_data <- read_csv(da1_url)
 
 # Seperating the distance and the unit into two columns
 da1_data <- separate(da1_data, distance, " ", into = c("distance", "distance_unit"))
