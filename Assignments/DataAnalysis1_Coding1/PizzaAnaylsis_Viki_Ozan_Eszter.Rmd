@@ -6,6 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
+library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -15,16 +16,66 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
+```{r, include= FALSE}
+# Converting the data into csv format makes it possible to directly access it from Github
+# I will make a pull request later on but I believe the url below need to be updated to Eszter's repo
+da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
+da1_data <- read_csv(da1_url)
 
+# Seperating the distance and the unit into two columns
+da1_data <- separate(da1_data, distance, " ", into = c("distance", "distance_unit"))
+# Transforming the distances to km
+da1_data$distance <- ifelse(da1_data$distance_unit == "m", as.numeric(da1_data$distance)/1000, da1_data$distance)
+# Renaming the distance units
+da1_data$distance_unit <- str_replace(da1_data$distance_unit, "m", "km")
+da1_data$distance_unit <- str_replace(da1_data$distance_unit, "kkm", "km")
+# Turning distance to a numeric variable
+da1_data$distance <- as.numeric(da1_data$distance)
+# Changing imported_wine into a factor 
+da1_data$imported_wine <- as.factor(da1_data$imported_wine)
+da1_data$imported_wine <- str_replace(da1_data$imported_wine, "0", "No")
+da1_data$imported_wine <- str_replace(da1_data$imported_wine, "no", "No")
+da1_data$imported_wine <- str_replace(da1_data$imported_wine, "yes", "Yes")
+
+
+```
 ## Including Plots
 
-You can also embed plots, for example:
+```{r, echo = FALSE, warning = FALSE}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Creating a graph of restaurants' distance from CEU
+
+distance_graph <- ggplot( da1_data , aes( x = distance  ) ) +
+  geom_histogram( aes(y = ..density..) , binwidth = 0.5, fill = "navyblue") +
+  labs(x='Distnace from CEU',y='Density', title = "Figure 1.1: Restaurant Distances From CEU") + xlim(0, 8) + ylim(0, 0.5)
+
+distance_graph + geom_segment( aes(x = 4, y = 0, xend = 4, yend = 0.5), color = 'black', size=1) + 
+  annotate("rect",xmin=4, xmax = 8, ymin=0, ymax=0.5, fill='blue', alpha=0.1, na.rm = TRUE) + 
+  annotate("text", x = 6, y = 0.12, label = "Too far", size=3)
+
+
+
+# Creating a simple boxplot for mean pizza price under imported wine category
+wine_graph <- ggplot(da1_data, aes(y = margarita_price, x = imported_wine)) +
+  geom_boxplot(color = "blue", size = 0.5, width = 0.1, alpha = 0.5) +
+  labs(x='Imported Wine',y='Price', title = "Figure 1.2: Change in Pizza Prices")
+
+wine_graph + stat_boxplot(geom = "errorbar", width = 0.05,  size = 0.5) + 
+   stat_summary(fun=mean, geom="point", shape=2, size=2, color="red", fill="red")
+
+# Checking the average prices of margarita pizzas per size
+mean_price_32 <- da1_data %>% filter(margarita_size == "32") %>% summarize(mean(margarita_price))
+mean_price_30 <- da1_data %>% filter(margarita_size == "30") %>% summarize(mean(margarita_price))
+
+# Creating a scatterplot of Price vs Size of Margarita Pizza
+price_vs_size <- ggplot( da1_data , aes( x = margarita_price , y = margarita_size ) )+
+    geom_point( color = 'navyblue' )+
+    labs( x = 'Price of Margarita Pizza' , y = 'Size of Margarita Pizza', title = "Figure 1.3: Pizza Price and Size" ) + geom_vline(xintercept = mean_price_32[[1]], linetype = "dashed") + geom_vline(xintercept = mean_price_30[[1]], color = "red", linetype = "dashed")
+
+price_vs_size + annotate("text", x = 1750, y = 28, label = "Mean Price of 32cm Pizza") + 
+  annotate("text", x = 1550, y = 29, label = "Mean Price of 30cm Pizza", color = "red") + 
+  annotate("text", x = 2150, y = 27, label = "Outlier", size = 3, color = "navyblue")
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
