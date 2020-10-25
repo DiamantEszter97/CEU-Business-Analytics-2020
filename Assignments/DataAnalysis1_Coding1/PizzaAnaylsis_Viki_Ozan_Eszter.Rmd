@@ -1,95 +1,297 @@
 ---
-title: "PizzaAnalysis_DA1_C1"
-author: "Eszter, Viki, Ozan"
-date: '2020 10 23 '
+title: "Pizza Data Analysis"
+author: "Eszter - Viki - Ozan"
+date: '2020 October 23'
 output: pdf_document
+ # prettydoc::html_pretty:
+  #  theme: cayman
+   # highlight: github
 ---
 
 ```{r setup, include=FALSE}
+rm(list=ls())
+   
 library(tidyverse)
-knitr::opts_chunk$set(echo = TRUE)
+library(moments)
+library(xtable)
+library(ggpubr)
 ```
 
-## Data Conclusion
+## Data Collection
 
-I will write here a short summary (Eszter)
+Due to the pandemic situation, we decided to collect the data for our research exclusively from online sources. This had the advantage, that we did not have to visit several restaurants, which would have been time consuming but also caused some difficulties and also some changes in our initial set of variables. We were not able to record the area of the places, the number of waiters or the number of tables, with which we wanted to measure the ecxlusivity of the places, instead we decided to collect rating on Wolt, NetPincér, Tripadvisor, Google and also Facebook, as well as the number of reviews for reliability.
+.
+.
+.
 
-```{r, include=FALSE, warning=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
 da1_data <- read_csv(da1_url)
 
-pizza_summary <- da1_data %>% 
+```
+
+
+```{r, include=FALSE}
+#### Cola calculations to be able to ha descriptive statistics for them
+# merge Pepsi and Cola prices for the 500ml colums to have the price of cola
+da1_data$cola_price_500ml <- with(da1_data,ifelse(is.na(coke_price_500ml),pepsi_price_500ml,coke_price_500ml))
+
+
+# To have less missing values calculte the estimated price of a 500ml cola based on the prices of smaller or larger quantities (assuming price/ml is the same)
+da1_data$coke_price_estimate <- (da1_data$coke_price/da1_data$size_if_not_500ml*0.5)
+da1_data$pepsi_price_estimate <- (da1_data$pepsi_price/da1_data$size_if_not_500ml*0.5)
+
+# merge these estimated columns for Pepsi and Coke
+da1_data$cola_estimated_price_500ml <- with(da1_data,ifelse(is.na(coke_price_estimate),pepsi_price_estimate,coke_price_estimate))
+
+#Delete unnecesarry columns as we have the data in the merged 
+da1_data$coke_price_estimate <- NULL
+da1_data$pepsi_price_estimate <- NULL
+
+# Merge estimated values with real 500ml values to have the final 500ml price column for cola
+da1_data$cola_price <- with(da1_data,ifelse(is.na(cola_price_500ml),cola_estimated_price_500ml,cola_price_500ml))
+
+
+#### Variales
+# cola_price_500ml contains the merged values from 500ml cola products
+# cola_estimated_price_500ml contains the price which were estimated from other sized cola products
+# cola_price contains all the original 500ml and estimated 500ml prices
+```
+
+## Descriptive statistics
+```{r, echo = FALSE , results = "asis", warning = FALSE, message = FALSE }
+pizza_summary_1 <- da1_data %>% 
   summarise(mean = mean(margarita_price),
             median   = median(margarita_price),
             std      = sd(margarita_price),
             iq_range = IQR(margarita_price), 
             min      = min(margarita_price),
             max      = max(margarita_price),
+            skew     = round(skewness(margarita_price), digit=4),
             numObs   = sum( !is.na( margarita_price ) ) )
 
+cola_summary_2 <- da1_data %>% 
+  summarise(mean = mean(cola_price, na.rm = TRUE),
+            median   = median(cola_price, na.rm = TRUE),
+            std      = sd(cola_price, na.rm = TRUE),
+            iq_range = IQR(cola_price, na.rm = TRUE), 
+            min      = min(cola_price, na.rm = TRUE),
+            max      = max(cola_price, na.rm = TRUE),
+            skew     = round(skewness(cola_price, na.rm = TRUE), digit=4),
+            numObs   = sum( !is.na( cola_price) ) )
+  
+
+price_summary <- pizza_summary_1 %>% add_row( cola_summary_2 )
+
+   
+xtb <- xtable(price_summary,type = "latex", caption = "Summary statistics for the margarita  and cola prices")
+print(xtb, comment=FALSE, include.rownames=TRUE)
 ```
 
 
-```{r, include=TRUE, echo=FALSE}
-pizza_summary
+```{r, echo = FALSE , results = "asis", warning = FALSE, message = FALSE }
+cola_500ml <- da1_data %>% 
+  summarise(mean = mean(cola_price_500ml, na.rm = TRUE),
+            median   = median(cola_price_500ml, na.rm = TRUE),
+            std      = sd(cola_price_500ml, na.rm = TRUE),
+            iq_range = IQR(cola_price_500ml, na.rm = TRUE), 
+            min      = min(cola_price_500ml, na.rm = TRUE),
+            max      = max(cola_price_500ml, na.rm = TRUE),
+            skew     = round(skewness(cola_price_500ml, na.rm = TRUE), digit=4),
+            numObs   = sum( !is.na( cola_price_500ml) ) )
+
+cola_est <- da1_data %>% 
+  summarise(mean = mean(cola_estimated_price_500ml, na.rm = TRUE),
+            median   = median(cola_estimated_price_500ml, na.rm = TRUE),
+            std      = sd(cola_estimated_price_500ml, na.rm = TRUE),
+            iq_range = IQR(cola_estimated_price_500ml, na.rm = TRUE), 
+            min      = min(cola_estimated_price_500ml, na.rm = TRUE),
+            max      = max(cola_estimated_price_500ml, na.rm = TRUE),
+            skew     = round(skewness(cola_estimated_price_500ml, na.rm = TRUE), digit=4),
+            numObs   = sum( !is.na( cola_estimated_price_500ml) ) )
+
+cola_summary <- cola_500ml %>%  add_row(cola_est) 
+
+xtb2 <- xtable(cola_summary,type = "latex", caption = "Summary statistics for the actual 500ml cola prices and the estimated ones")
+print(xtb2, comment=FALSE, include.rownames=TRUE)
+
+
+rm( pizza_summary_1, cola_summary_2, cola_500ml, cola_est )
 ```
 
 
-```{r, include= FALSE}
-# Converting the data into csv format makes it possible to directly access it from Github
-# I will make a pull request later on but I believe the url below need to be updated to Eszter's repo
-# da1_url <- "https://raw.githubusercontent.com/semihozankaya/CEU-Business-Analytics-2020/master/Data_Analysis1/TeamAssignment_Eszter_Ozan_Viki/da1_data.csv"
-# da1_data <- read_csv(da1_url)
+
+```{r, include= FALSE, warning=FALSE}
 
 # Seperating the distance and the unit into two columns
 da1_data <- separate(da1_data, distance, " ", into = c("distance", "distance_unit"))
+
 # Transforming the distances to km
 da1_data$distance <- ifelse(da1_data$distance_unit == "m", as.numeric(da1_data$distance)/1000, da1_data$distance)
+
 # Renaming the distance units
 da1_data$distance_unit <- str_replace(da1_data$distance_unit, "m", "km")
 da1_data$distance_unit <- str_replace(da1_data$distance_unit, "kkm", "km")
+
 # Turning distance to a numeric variable
 da1_data$distance <- as.numeric(da1_data$distance)
+
 # Changing imported_wine into a factor 
 da1_data$imported_wine <- as.factor(da1_data$imported_wine)
 da1_data$imported_wine <- str_replace(da1_data$imported_wine, "0", "No")
 da1_data$imported_wine <- str_replace(da1_data$imported_wine, "no", "No")
 da1_data$imported_wine <- str_replace(da1_data$imported_wine, "yes", "Yes")
 
+#rename last variable as it displays the wrong name
+da1_data <- rename(da1_data, margarita_price_w_delivery=margarita_price_alone)
 
 ```
-## Including Plots
 
-```{r, echo = FALSE, warning = FALSE}
+## Distribution of Margarita and cola prices
+```{r, echo=FALSE, out.width = '40%', warning=FALSE}
+
+ggplot(data=da1_data, aes(x=margarita_price))+
+  geom_histogram( aes(y = ..density..), fill="dodgerblue4", binwidth = 100)+
+  geom_density(aes(y=..density..), fill="dodgerblue", alpha=0.4) +
+  labs(x="Price of Margarita pizza", y="Density") +
+  theme_bw()
+  
+ggplot(data=da1_data, aes(x=cola_price))+
+  geom_histogram( aes(y=..density..), fill="hotpink4", binwidth = 40)+
+  geom_density(aes(y=..density..), fill="hotpink", alpha=0.4) +
+  labs(x="Price of Cola products", y="Density") +
+  theme_bw()+
+  xlim(190,1200)
+
+```
+
+## Distribution of real 500ml Cola prices
+```{r, echo=FALSE, out.width = '30%', warning=FALSE}
+
+ggplot(data=da1_data, aes(x=cola_price_500ml))+
+  geom_histogram( aes(y = ..density..), fill="chartreuse4", binwidth = 40)+
+  labs(x="Price of Cola", y="Density") +
+  theme_bw()+
+  xlim(190,1200)
+
+ggplot(data=da1_data, aes(x=cola_price_500ml))+
+  geom_density(aes(y=..density..), fill="chartreuse", alpha=0.4) +
+  labs(x="Price of Cola", y="Density") +
+  theme_bw()
+
+
+```
+
+## Distribution of estimated 500ml Cola prices
+```{r, echo=FALSE, out.width = '30%', warning=FALSE}
+
+ggplot(data=da1_data, aes(x=cola_estimated_price_500ml))+
+  geom_histogram( aes(y = ..density..), fill="chocolate4", binwidth = 40)+
+  labs(x="Price of Cola", y="Density") +
+  theme_bw()+
+  xlim(190,1200)
+
+ggplot(data=da1_data, aes(x=cola_estimated_price_500ml))+
+  geom_density(aes(y=..density..), fill="chocolate", alpha=0.4) +
+  labs(x="Price of Cola", y="Density") +
+  theme_bw()
+
+
+```
+
+## Prices of Margarita pizza online vs offline
+```{r, echo=FALSE, out.width = '50%', warning=FALSE}
+
+da1_data %>% 
+  ggplot(aes(x=margarita_price, fill=delivery))+
+  geom_density(aes(y=..density..), alpha=0.1) +
+  labs(x="Prices of Margarity pizza", y="Density", fill="Is it delivered or eat at the restaurant") +
+  theme_bw()
+
+da1_data %>% 
+  ggplot(aes(x=margarita_price, fill=delivery))+
+  geom_histogram(aes(y=..density..), alpha=0.1) +
+  labs(x="Prices of Margarity pizza", y="Density", fill="Is it delivered or eat at the restaurant") +
+  theme_bw()
+
+```
+
+## Prices of Margarita pizza in Budepest vs Rest of Hungary
+```{r, echo=FALSE, out.width = '50%', warning=FALSE}
+da1_data %>% 
+  ggplot(aes(x=margarita_price, fill=city))+
+  geom_density(aes(y=..density..), alpha=0.1) +
+  labs(x="Prices of Margarity pizza", y="Density", fill="Budapest or Rest of Hungary") +
+  theme_bw()
+
+da1_data %>% 
+  ggplot(aes(x=margarita_price, color=city))+
+  geom_histogram( aes(y = ..density..), fill="chocolate4", binwidth = 100)+
+  labs(x="Prices of Margarity pizza", y="Density", fill="Budapest or Rest of Hungary") +
+  theme_bw()
+
+
+```
+
+## Hypothesis testing if the mean price online vs offline is the same
+```{r}
+
+
+  
+
+
+```
+
+
+## Hypothesis testing if the mean price inBudapest or in Rest of Hungary is the same
+```{r}
+
+
+
+```
+
+
+## Figure 1.1: Restaurant Distances From CEU
+```{r, echo = FALSE, warning = FALSE, out.width = '50%' }
 
 # Creating a graph of restaurants' distance from CEU
 
 distance_graph <- ggplot( da1_data , aes( x = distance  ) ) +
   geom_histogram( aes(y = ..density..) , binwidth = 0.5, fill = "navyblue") +
-  labs(x='Distance from CEU',y='Density', title = "Figure 1.1: Restaurant Distances From CEU") + xlim(0, 8) + ylim(0, 0.5)
+  labs(x='Distance from CEU',y='Density') + xlim(0, 8) + ylim(0, 0.5) +
+  theme_bw()
 
 distance_graph + geom_segment( aes(x = 4, y = 0, xend = 4, yend = 0.5), color = 'black', size=1) + 
   annotate("rect",xmin=4, xmax = 8, ymin=0, ymax=0.5, fill='blue', alpha=0.1, na.rm = TRUE) + 
   annotate("text", x = 6, y = 0.12, label = "Too far", size=3)
+```
 
-
+## Figure 1.2: Change in Pizza Prices
+```{r, echo = FALSE, warning = FALSE, out.width = '50%'}
 
 # Creating a simple boxplot for mean pizza price under imported wine category
+
 wine_graph <- ggplot(da1_data, aes(y = margarita_price, x = imported_wine)) +
   geom_boxplot(color = "blue", size = 0.5, width = 0.1, alpha = 0.5) +
-  labs(x='Imported Wine',y='Price', title = "Figure 1.2: Change in Pizza Prices")
+  labs(x='Imported Wine',y='Price')
 
 wine_graph + stat_boxplot(geom = "errorbar", width = 0.05,  size = 0.5) + 
    stat_summary(fun=mean, geom="point", shape=2, size=2, color="red", fill="red")
+```
+
+
+## Figure 1.3: Pizza Price and Size 
+```{r, echo = FALSE, warning = FALSE, out.width = '50%'}
 
 # Checking the average prices of margarita pizzas per size
+
 mean_price_32 <- da1_data %>% filter(margarita_size == "32") %>% summarize(mean(margarita_price))
 mean_price_30 <- da1_data %>% filter(margarita_size == "30") %>% summarize(mean(margarita_price))
 
 # Creating a scatterplot of Price vs Size of Margarita Pizza
 price_vs_size <- ggplot( da1_data , aes( x = margarita_price , y = margarita_size ) )+
     geom_point( color = 'navyblue' )+
-    labs( x = 'Price of Margarita Pizza' , y = 'Size of Margarita Pizza', title = "Figure 1.3: Pizza Price and Size" ) + geom_vline(xintercept = mean_price_32[[1]], linetype = "dashed") + geom_vline(xintercept = mean_price_30[[1]], color = "red", linetype = "dashed")
+    labs( x = 'Price of Margarita Pizza' , y = 'Size of Margarita Pizza') + geom_vline(xintercept = mean_price_32[[1]], linetype = "dashed") + geom_vline(xintercept = mean_price_30[[1]], color = "red", linetype = "dashed")
 
 price_vs_size + annotate("text", x = 1750, y = 28, label = "Mean Price of 32cm Pizza") + 
   annotate("text", x = 1550, y = 29, label = "Mean Price of 30cm Pizza", color = "red") + 
