@@ -224,13 +224,29 @@ da1_data %>%
 ```
 
 ## Hypothesis testing if the mean price online vs offline is the same
-```{r, echo = FALSE}
+```{r, echo = FALSE , results = "asis", warning = FALSE, message = FALSE }
 # Welch Two Sample t-test to understand if mean pizza prices of online vs offline is different than each other 
-t.test(margarita_price ~ delivery, da1_data)
+online_vs_offline <- t.test(margarita_price ~ delivery, da1_data)
+on_off_table <- data.frame(test = "Online Prices",
+                            t = online_vs_offline$statistic[[1]],
+                            df = online_vs_offline$parameter,
+                            p_value = "< 0.01",
+                            average_price_1 = online_vs_offline$estimate[[1]],
+                            average_price_2 = online_vs_offline$estimate[[2]],
+                            CI_95_lower = online_vs_offline$conf.int[1],
+                            CI_95_upper = online_vs_offline$conf.int[2])
+budapest_vs_rest <- t.test(margarita_price ~ is_budapest, da1_data)
+budrest_table <- data.frame(test = "Budapest Prices",
+                            t = budapest_vs_rest$statistic[[1]],
+                            df = budapest_vs_rest$parameter,
+                            p_value = "< 0.01",
+                            average_price_1 = budapest_vs_rest$estimate[[1]],
+                            average_price_2 = budapest_vs_rest$estimate[[2]],
+                            CI_95_lower = budapest_vs_rest$conf.int[1],
+                            CI_95_upper = budapest_vs_rest$conf.int[2])
+hypothesis_table <- rbind(on_off_table, budrest_table)
+xtb3 <- xtable(hypothesis_table,type = "latex", caption = "Welch Two Sample t-test results for testing if average prices under our samples are equal")
+print(xtb3, comment=FALSE, include.rownames=FALSE)
 ```
 
-Here we see that we reject the null hypothesis that the mean pizza price we observe online is the same as those we observe in restaurants (t = 3.0685, df = 63.384, p-value = 0.003163). The average pizza price online is 1867.200 and for those offline is 1629.769. The 95% confidence interval for the difference in prices between the two  groups is (82.82589, 392.03565).
-```{r, echo = FALSE}
-t.test(cola_price ~ delivery, da1_data)
-```
-For the difference between online and offline cola prices on the other hand, we cannot reject the null that the average of these two prices is not the same (t = 0.51646, df = 54.09, p-value = 0.6076). There is strong evidence suggesting that online and offline beverage prices are similar on average.
+Here we can reject the null hypothesis that the mean pizza price we observe online is the same as those we observe in restaurants (t = 3.0685, df = 63.384, p-value = 0.003163). The average pizza price online is 1867.200 and for those offline is 1629.769. The same is true for pizza prices in Budapest and the rest of Hungary (t = 6.0714, df = 60.651, p-value = 9.022e-08). The average pizza price in Budapest is most likely to be higher than the rest of Hungary.
