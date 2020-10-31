@@ -1,6 +1,10 @@
+-- 1: Create Schema and load the tables
+
+
+Drop schema if exists ipl;
 CREATE SCHEMA ipl;
 USE ipl;
-DROP TABLE PLAYERS;
+DROP TABLE if exists PLAYERS;
 CREATE TABLE players
 	(player_name VARCHAR(255) NOT NULL,
     DOB DATETIME,
@@ -8,17 +12,17 @@ CREATE TABLE players
     bowling_skill VARCHAR(255),
     country VARCHAR(255));
    
-load data infile 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\players.csv'
+load data infile 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/players.csv'
 	into table players
-    fields terminated by ","
-    lines terminated by '\n'
+    fields terminated by ";"
+    lines terminated by '\r\n'
     ignore 1 lines
     (player_name, @v_DOB, batting_hand, bowling_skill, @v_country)
     set
     DOB = nullif(@v_DOB, ''),
     country = nullif(@v_country, '');
     
-DROP table deliveries;
+DROP table if exists deliveries;
 CREATE TABLE deliveries
 	(match_id INTEGER NOT NULL,
     inning INTEGER NOT NULL,
@@ -53,7 +57,7 @@ LOAD DATA INFILE 'c:/ProgramData/MySQL/MySQL Server 8.0/Uploads/deliveries.csv'
     dimsissal_kind = nullif(@v_dismissal_kind, ''),
     fielder = nullif(@v_fielder, '');
     
-DROP TABLE matches;
+DROP TABLE if exists matches;
 CREATE TABLE matches
 	(id INTEGER NOT NULL,
     season VARCHAR(255) NOT NULL,
@@ -75,10 +79,10 @@ CREATE TABLE matches
     empire3 VARCHAR(255),
     Primary key (id));
     
-LOAD DATA infile 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\matches.csv'
+LOAD DATA infile 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/matches.csv'
 	into table matches
-    fields terminated by ','
-    lines terminated by '\n'
+    fields terminated by ';'
+    lines terminated by '\r\n'
     ignore 1 lines
     (id, season, city, date1, team1, team2, toss_winner, toss_decision, result, dl_applied, winner, win_by_runs, win_by_wickets, player_of_match, venue, @v_empire1, @v_empire2, @v_empire3)
     set
@@ -86,30 +90,36 @@ LOAD DATA infile 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\matches.csv'
     empire2 = nullif(@v_empire2, ''),
     empire3 = nullif(@v_empire3, '');
 
-DROP TABLE mostruns;
+DROP TABLE if exists mostruns;
 CREATE TABLE mostruns
 	(batsman VARCHAR(255) NOT NULL,
     total_runs INTEGER NOT NULL,
     out1 integer not null,
     numberofballs integer not null,
-    average float not null,
+    average float,
     strikerate float not null);
 
-load data infile 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\most_runs_average_strikerate.csv'
+load data infile 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/most_runs_average_strikerate.csv'
 	into table mostruns
+    fields terminated by ','
+    lines terminated by '\r\n'
     ignore 1 lines
-    (batsman, total_runs, out1, numberofballs, average, strikerate);
+    (batsman, total_runs, out1, numberofballs, @v_average, strikerate)
+    set
+    average = nullif(@v_average, '');
     
-DROP TABLE teams;   
+DROP TABLE if exists teams;   
 CREATE TABLE teams
 	(team1 VARCHAR(255) NOT NULL);
     
-load data infile 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\teams.csv'
+load data infile 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/teams.csv'
 	into table teams
+    fields terminated by ','
+    lines terminated by '\r\n'
 	ignore 1 lines
 	(team1);
  
- DROP TABLE wins;
+ DROP TABLE if exists wins;
 CREATE TABLE wins
 	(team VARCHAR(255) NOT NULL,
     home_wins INTEGER NOT NULL,
@@ -119,8 +129,10 @@ CREATE TABLE wins
     home_win_percent FLOAT NOT NULL,
     away_win_percent FLOAT NOT NULL);
     
-load data infile 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\teamwise_home_and_away.csv'
+load data infile 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/teamwise_home_and_away.csv'
 	into table wins
+    fields terminated by ','
+    lines terminated by '\r\n'
     ignore 1 lines
     (team, home_wins, away_wins, home_matches, away_matches, home_win_percent, away_win_percent);
 
