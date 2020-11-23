@@ -1,0 +1,69 @@
+---
+title: "The Denver Channel News"
+author: "Eszter Diamant"
+date: '2020. 11. 23 '
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+rm(list=ls())
+library(prettydoc)
+library(knitr)
+library(rvest)
+library(data.table)
+library(xtable)
+```
+
+## Code:
+
+```{r, include = TRUE, results = TRUE}
+
+
+# save the url:
+# save the url:
+one_page <- function(my_url) {
+  t <- read_html(my_url)
+  boxes <- t %>% html_nodes('.ListItem')
+  small_dfs <- lapply(boxes, function(x) {
+        my_list <- list()
+        # save the titles 
+        my_list[['titles']] <- x %>% html_nodes('.ListItem-title') %>% 
+          html_text()
+        # save the teasers
+        my_list[['category']] <- x %>% html_nodes('.ListItem-category') %>% 
+          html_text()
+        # save the publish date
+        my_list[['publish date']] <- x %>% html_nodes('.ListItem-date') %>% html_text()
+        my_list[['links']] <- x %>% html_attr('href')
+        # save the links
+        return(my_list)
+  })
+  df <-  rbindlist(small_dfs, fill = T)
+  return(df)
+}
+data_from_thedenverchannel <- function(search_word, pages_needed){
+  page_one <- paste0('https://www.thedenverchannel.com/search?q=', search_word)
+  page_from_one <- paste0(page_one, '&p=') 
+  pages <- c(page_one, paste0(page_from_one, 2:pages_needed))
+  df <- rbindlist(lapply(pages, one_page), fill = TRUE)
+  return(df)
+}
+final_df <- data_from_thedenverchannel(search_word='data', pages_needed=5)
+my_path <- 'C:/Users/diama/Documents/CEU-Business-Analytics-2020/Coding_2_WebScraping/Assignment1/'
+saveRDS(final_df, paste0(my_path, 'Assignment1_DiamantEszter.rds'))
+write.csv(final_df, paste0(my_path, 'Assignment1_DiamantEszter.csv'))
+```
+
+
+## Output: data table
+
+```{r}
+
+final_df
+
+```
